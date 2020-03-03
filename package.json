@@ -1,0 +1,18 @@
+{
+  "name": "squiangle",
+  "version": "1.0.0",
+  "description": "Welcome to Glitch =================",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://eb5227b8-4401-4d33-b55c-de1f7a24fda4@api.glitch.com/git/squiangle"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^2.6.1"
+  }
+}
