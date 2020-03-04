@@ -1,19 +1,4 @@
-const { createCanvas } = require('canvas');
-
-const SIZE = 1000;
-const RUNTIME = 240;
-const FPS = 60;
-
-function dp(x){
-  const out = [];
-  for(let i=0;i<x.length-1;i++) {
-    out.push(x[i]);
-    out.push(arguments[i+1].toFixed(2));
-  }
-  out.push(x[x.length-1]);
-  return out.join('');
-}
-
+const {animate,dp,ease_cubicinout,lerp} = require('./animate');
 
 function positions(t,a,b,c,d) {
   const e = (2*a+b)/3;
@@ -71,9 +56,6 @@ function polypath(points) {
   return s;
 }
 
-function lerp(a,b,t) {
-  return (1-t)*a+t*b;
-}
 function golden(k,m,i) {
   return ((1+Math.sqrt(5))/2 * k * i) % m;
 }
@@ -87,10 +69,6 @@ function make_background(svg) {
   background.setAttribute('width',box.width);
   background.setAttribute('height',box.height);
   background.style['fill'] = 'white';
-}
-
-function ease_cubicinout(t) {
-  return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
 }
 
 function compose(a,b) {
@@ -118,12 +96,11 @@ class Scene {
     ]
   }
   
-  draw(canvas,size,t,rot,perm) {
-    const ctx = canvas.getContext('2d');
+  draw(ctx,t,rot,perm) {
+    const size = 100;
 
     ctx.translate(size/2,size/2);
     ctx.rotate((rot-90)*Math.PI/180);
-    ctx.stroke();
     const {points,polys} = coords(t);
 
     const paths = polys.map((_,j)=>{
@@ -147,7 +124,8 @@ class Scene {
     })
   }
   
-  animate(canvas,size,twt) {
+  animate(ctx,twt) {
+    twt *= 10;
     let perm = [0,1,2,3,4,5,6,7,8]; 
     while(twt>=1) {
       for(let kf of this.keyframes) {
@@ -184,33 +162,17 @@ class Scene {
     const squidge = kf1.squidge*(1-t) + kf2.squidge*t;
     const rot = kf1.rot*(1-t) + kf2.rot*t;
 
-    return this.draw(canvas,size,squidge,rot,perm);
+    return this.draw(ctx,squidge,rot,perm);
   }
 
 }
 
 const scene = new Scene();
 
-function animate(draw,runtime,fps,size,filenamer) {
-  const fs = require('fs');
-  const frames = Math.ceil(runtime*fps);
-
-  function frame(i) {
-    if(i>=frames) {
-      return;
-    }
-    const t = 10*i/(frames-1);
-    const canvas = createCanvas(size,size);
-    draw(canvas,size,t);
-    const filename = filenamer(i,frames);
-    console.log(`${i+1}/${frames}`);
-    const stream = canvas.createPNGStream();
-    const f = fs.createWriteStream(filename);
-    stream.pipe(f);
-    f.on('finish',()=>frame(i+1));
-  }
-
-  frame(0);
-}
-
-animate(scene.animate.bind(scene),RUNTIME,FPS,SIZE,i=>`pngs/squiangle-${(i+'').padStart(4,'0')}.png`);
+animate({
+    draw: scene.animate.bind(scene),
+    runtime: 24,
+    fps: 60,
+    size: 1000,
+    makemovie: true
+});
