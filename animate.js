@@ -3,6 +3,15 @@ const { spawn} = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+/** Render an animation to a .mp4 file. A sequence of frames is rendered to png files, then ffmpeg is used to make a movie.
+ * `options` is an object containing:
+ *
+ * draw(context, t) - a function given a canvas context and a time between 0 and 1. It should draw a frame of the animation at the given time.
+ * runtime - the number of seconds that the animation should run for. `t` is 1 at the end of the runtime
+ * fps - the number of frames per second to render
+ * size - the canvas will have this width and height, in pixels. The context is scaled to a 100×100 box so the draw function doesn't need to know this value.
+ * makemovie - if false, only the png files are generated, not the movie
+ */
 exports.animate = function(options) {
     const {draw,runtime,fps,size,makemovie} = options;
     const outfile = path.parse(process.mainModule.filename).name+'.mp4';
@@ -60,6 +69,8 @@ exports.lerp = function(a,b,t) {
     return (1-t)*a+t*b;
 }
 
+/* Clamps t to 0 when less than a, 1 when greater than b, and change linearly between a and b.
+ */
 exports.between = function(a,b,t) {
     if(b>1 && t<a) {
         a -= 1;
@@ -69,12 +80,17 @@ exports.between = function(a,b,t) {
     t /= b-a;
     return Math.max(0,Math.min(1,t));
 }
+
+/* Split the interval [0,1] into n sections. Returns an array [f,dt], where f is the number of the section, and dt is 0 at the start of the section and 1 at the end.
+ */
 exports.enframe = function(n,t) {
     const f = Math.floor(n*t);
     const dt = (n*t)%1;
     return [f,dt];
 }
 
+/* When substituting numbers into a template literal, format them to two decimal places.
+ */
 exports.dp = function(x){
     const out = [];
     for(let i=0;i<x.length-1;i++) {
