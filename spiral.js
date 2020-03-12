@@ -59,8 +59,8 @@ function draw(ctx,t) {
 
 animate({
     draw: draw,
-    runtime: 60,
-    fps: 1,
+    runtime: 30,
+    fps: 60,
     size: 400,
     filename: __filename,
     makemovie: true
