@@ -14,7 +14,10 @@ const path = require('path');
  */
 exports.animate = function(options) {
     const {draw,runtime,fps,size,makemovie} = options;
-    const outfile = path.parse(process.mainModule.filename).name+'.mp4';
+    const movie_file = path.parse(process.mainModule.filename).name;
+    const outfile = movie_file+'.mp4';
+    const time = Math.floor((new Date())/1000);
+    const backupfile = `renderings/${movie_file}-${time}.mp4`;
     const fs = require('fs');
     const frames = Math.ceil(runtime*fps);
 
@@ -55,6 +58,7 @@ exports.animate = function(options) {
             console.log(`stderr: ${data}`);
         });
         ffmpeg.on('close',() => {
+            fs.copyFileSync(outfile,backupfile);
             console.log(`Rendered to ${outfile}`);
         })
     }
