@@ -3,6 +3,12 @@ const { spawn} = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+function makedir(dir) {
+    if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+    }
+}
+
 /** Render an animation to a .mp4 file. A sequence of frames is rendered to png files, then ffmpeg is used to make a movie.
  * `options` is an object containing:
  *
@@ -14,6 +20,10 @@ const path = require('path');
  */
 exports.animate = function(options) {
     const {draw,runtime,fps,size,makemovie} = options;
+
+    makedir('pngs');
+    makedir('renderings');
+
     const movie_file = path.parse(process.mainModule.filename).name;
     const outfile = movie_file+'.mp4';
     const time = Math.floor((new Date())/1000);
